@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	
+	<style>
+		.toad-message, #main {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="mocha">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script src="/node_modules/chai/chai.js"></script>
+		<script src="/node_modules/mocha/mocha.js"></script>
+		<script src="/js/lib/require.js"></script>
+		<script src="/js/main.js"></script>
+		<script src="setup.js"></script>
+		<script src="app.test.js"></script>
+
+		<script>require(['app'], function() { mocha.run(); });</script>
+	</div>
+</body>
+</html>
