@@ -2,6 +2,6 @@
 	appDir: 'app/',
 	baseUrl: 'js',
 	paths: {},
-	dir: 'build',
+	dir: 'build/',
 	modules: [{ name: 'main' }] 
-})
+});

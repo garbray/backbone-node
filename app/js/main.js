@@ -1,13 +1,26 @@
-require.config({
-	baseUrl: 'js',
-	path: {
+requirejs.config({
+  baseUrl: 'js',
 
-	},
-	shim: {
+  paths: {
+    text: 'lib/text'
+  },
 
-	}
+  shim: {
+    'lib/underscore-min': {
+      exports: '_'
+    },
+    'lib/backbone-min': {
+        deps: ['lib/underscore-min'], 
+        exports: 'Backbone'
+    },
+    'app': {
+      deps: ['lib/underscore-min', 'lib/backbone-min']
+    }
+  }
 });
 
+
+
 require(['app'], function(App){
-	window.bTask = new App();
+    window.bTask = new App();
 });
