@@ -1,92 +1,96 @@
 define(['config'], function(config) {
-	function ApiManager() {
-		this.loadGapi();
-	}
+  var app;
 
-	_.extend(ApiManager.prototype, Backbone.Events);
+  function ApiManager(_app) {
+    app = _app;
+    this.loadGapi();
+  }
 
-	ApiManager.prototype.init = function() {
-		var self = this;
+  _.extend(ApiManager.prototype, Backbone.Events);
 
-		gapi.client.load('tasks', 'v1', function() {
-			/* loaded */
-		});
+  ApiManager.prototype.init = function() {
+    var self = this;
 
-		function handleClientLoad() {
-			gapi.client.setApiKey(config.apiKey);
-			window.setTimeout(checkAuth, 100);
-		}
+    gapi.client.load('tasks', 'v1', function() { /* Loaded */ });
 
-		function checkAuth() {
-			gapi.auth.authorize({ client_id: config.clientId, scope: config.scopes, inmediate: true}, handleAuthResult);
-		}
+    function handleClientLoad() {
+      gapi.client.setApiKey(config.apiKey);
+      window.setTimeout(checkAuth, 100);
+    }
 
-		function handleAuthResult(authResult) {
-			var authTimeout;
+    function checkAuth() {
+      gapi.auth.authorize({ client_id: config.clientId, scope: config.scopes, immediate: true }, handleAuthResult);
+    }
 
-			if(authResult && !authResult.error){
-				if(authResult.expires_in){
-					authTimeout = (authResult.expires_in -5 * 60)* 1000;
-					setTimeout(checkAuth, authTimeout);
-				}
+    function handleAuthResult(authResult) {
+      var authTimeout;
+        
 
-				app.views.auth.$el.hide();
-				$('#signed-in-container').show();
-			}else{
-				if(authResult && authResult.error) {
-					console.error('Unable to sign in:', authResult.error);
-				}
+      if (authResult && !authResult.error) {
+        // Schedule a check when the authentication token expires
+        if (authResult.expires_in) {
+          authTimeout = (authResult.expires_in - 5 * 60) * 1000;
+          setTimeout(checkAuth, authTimeout);
+        }
 
-				app.views.auth.$el.show();
-			}
-		}
+        app.views.auth.$el.hide();
+        $('#signed-in-container').show();
+      } else {
+        if (authResult && authResult.error) {
+          // TODO: Show error
+          console.error('Unable to sign in:', authResult.error);
+        }
 
-		this.checkAuth = function() {
-			gapi.auth.authorize({ client_id: config.clientId, scope: config.scopes, inmediate: false}, handleAuthResult);
-		};
+        app.views.auth.$el.show();
+      }
+    }
 
-		handleClientLoad();
-	};
+    this.checkAuth = function() {
+      gapi.auth.authorize({ client_id: config.clientId, scope: config.scopes, immediate: false }, handleAuthResult);
+    };
 
-	ApiManager.prototype.loadGapi = function() {
-		var self = this;
+    handleClientLoad();
+  };
 
-		//don't load gapi if it's already present
-		if(typeof gapi !== 'undefined') {
-			return this.init();
-		}
+  ApiManager.prototype.loadGapi = function() {
+    var self = this;
 
-		require(['https://apis.google.com/js/client.js?onload=define'], function() {
-			function checkGAPI() {
-				if(gapi && gapi.client) {
-					self.init();
-				} else {
-					setTimeout(checkGAPI, 100);
-				}
-			}
+    // Don't load gapi if it's already present
+    if (typeof gapi !== 'undefined') {
+      return this.init();
+    }
 
-			checkGAPI();
-		});
-	};
+    require(['https://apis.google.com/js/client.js?onload=define'], function() {
+      // Poll until gapi is ready
+      function checkGAPI() {
+        if (gapi && gapi.client) {
+          self.init();
+        } else {
+          setTimeout(checkGAPI, 100);
+        }
+      }
+      
+      checkGAPI();
+    });
+  };
 
-	Backbone.sync = function(method, model, options) {
-		options || (options = {});
+  Backbone.sync = function(method, model, options) {
+    options || (options = {});
 
-		switch (method) {
-			case 'create':
-			break;
+    switch (method) {
+      case 'create':
+      break;
 
-			case 'update':
-			break;
+      case 'update':
+      break;
 
-			case 'delete':
-			break;
+      case 'delete':
+      break;
 
-			case 'read':
-			break;
+      case 'read':
+      break;
+    }
+  };
 
-		}
-	};
-
-	return ApiManager;
+  return ApiManager;
 });
